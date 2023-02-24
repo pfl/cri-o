@@ -56,6 +56,11 @@ func (n *IPNet) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type QoSBandwidth struct {
+	Capacity uint64
+	Bandwidth map[string]uint64
+}
+
 // NetConf describes a network.
 type NetConf struct {
 	CNIVersion string `json:"cniVersion,omitempty"`

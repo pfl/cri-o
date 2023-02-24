@@ -100,6 +100,18 @@ func ConfListFromBytes(bytes []byte) (*NetworkConfigList, error) {
 		Bytes:        bytes,
 	}
 
+	qosconfiglist := &NetworkConfigList{}
+	err := json.Unmarshal(bytes, &qosconfiglist)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing qos configuration list")
+	}
+
+	if len(qosconfiglist.Qos) != 0 {
+		list.Qos = qosconfiglist.Qos
+	} else {
+		logrus.Info("qos map is empty")
+	}
+
 	var plugins []interface{}
 	plug, ok := rawList["plugins"]
 	if !ok {

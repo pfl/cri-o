@@ -73,6 +73,7 @@ type NetworkConfigList struct {
 	Name         string
 	CNIVersion   string
 	DisableCheck bool
+	Qos          map[string]types.QoSBandwidth
 	Plugins      []*NetworkConfig
 	Bytes        []byte
 }
