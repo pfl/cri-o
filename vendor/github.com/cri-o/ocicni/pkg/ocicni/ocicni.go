@@ -62,6 +62,8 @@ type cniNetwork struct {
 
 var errMissingDefaultNetwork = "No CNI configuration file in %s. Has your network provider started?"
 
+var NetworkQosClass string
+
 type podLock struct {
 	// Count of in-flight operations for this pod; when this reaches zero
 	// the lock can be removed from the pod map
@@ -554,6 +556,17 @@ func (plugin *cniNetworkPlugin) SetUpPodWithContext(ctx context.Context, podNetw
 	if err := plugin.forEachNetwork(&podNetwork, false, func(network *cniNetwork, podNetwork *PodNetwork, rt *libcni.RuntimeConf) error {
 		fullPodName := buildFullPodName(*podNetwork)
 		logrus.Infof("Adding pod %s to CNI network %q (type=%v)", fullPodName, network.name, network.config.Plugins[0].Network.Type)
+		class := NetworkQosClass
+		if class != "" {
+			bandwidth := network.config.Qos[class].Bandwidth
+
+			rt.CapabilityArgs["bandwidth"] = map[string]uint64{
+				"ingressRate":  bandwidth["IngressRate"],
+				"ingressBurst": bandwidth["IngressBurst"],
+				"egressRate":   bandwidth["EgressRate"],
+				"egressBurst":  bandwidth["EgressBurst"],
+			}
+		}
 		result, err := network.addToNetwork(ctx, rt, plugin.cniConfig)
 		if err != nil {
 			return fmt.Errorf("error adding pod %s to CNI network %q: %v", fullPodName, network.name, err)

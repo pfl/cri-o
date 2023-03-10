@@ -96,6 +96,9 @@ type PodNetwork struct {
 	// by name. The key value is the network name and the value is
 	// is a string slice of aliases
 	Aliases map[string][]string
+
+	// Network QoS class
+	NetworkQosClass string
 }
 
 // NetAttachment describes a container network attachment

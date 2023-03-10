@@ -9,6 +9,8 @@ import (
 	rspec "github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/sirupsen/logrus"
 	types "k8s.io/cri-api/pkg/apis/runtime/v1"
+
+	"github.com/cri-o/ocicni/pkg/ocicni"
 )
 
 // HACK: dummyQoS resources
@@ -20,6 +22,17 @@ var dummyContainerQoSResources map[string]map[string]struct{}
 // getPodQoSResourcesInfo returns information about all container-level QoS resources.
 func (s *Server) getPodQoSResourcesInfo() []*types.QoSResourceInfo {
 	info := []*types.QoSResourceInfo{}
+	netClasses := make([]string,0)
+
+	if netClasses != nil {
+		info = append(info,
+			&types.QoSResourceInfo{
+				Name:		types.QoSResourceNet,
+				Mutable:	false,
+				Classes: 	createClassInfos(netClasses...),
+			})
+	}
+
 	info = append(info, dummyPodQoSResourcesInfo...)
 	return info
 }
@@ -65,6 +78,8 @@ func createClassInfos(names ...string) []*types.QoSResourceClassInfo {
 func (s *Server) handleSandboxQoSResources(config *types.PodSandboxConfig) error {
 	for r, c := range config.GetQosResources().GetClasses() {
 		switch r {
+		case types.QoSResourceNet:
+			ocicni.NetworkQosClass = c
 		default:
 			cr, ok := dummyPodQoSResources[r]
 			if !ok {

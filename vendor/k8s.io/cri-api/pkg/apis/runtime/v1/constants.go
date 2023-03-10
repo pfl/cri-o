@@ -59,4 +59,6 @@ const (
 	QoSResourceRdt = "rdt"
 	// QoSResourceBlockio is the name of the blockio QoS resource
 	QoSResourceBlockio = "blockio"
+	// QoSResourceNet is the name of the network QoS resource
+	QoSResourceNet = "net"
 )

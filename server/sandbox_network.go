@@ -16,6 +16,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	utilnet "k8s.io/utils/net"
+
+	types "k8s.io/cri-api/pkg/apis/runtime/v1"
 )
 
 // networkStart sets up the sandbox's network and returns the pod IP on success
@@ -59,6 +61,9 @@ func (s *Server) networkStart(ctx context.Context, sb *sandbox.Sandbox) (podIPs 
 	}()
 
 	podSetUpStart := time.Now()
+
+	podNetwork.NetworkQosClass = sb.QoSResources()[types.QoSResourceNet]
+
 	_, err = s.config.CNIPlugin().SetUpPodWithContext(startCtx, podNetwork)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create pod network sandbox %s(%s): %w", sb.Name(), sb.ID(), err)
